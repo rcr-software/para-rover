@@ -7,8 +7,10 @@
 ---------------------------------------------------------------*/
 
 #include <Adafruit_VL53L0X.h>
+#include <Adafruit_BMP085.h>
 
 Adafruit_VL53L0X lox = Adafruit_VL53L0X();
+Adafruit_BMP085 bmp;
 
 long lidarGetRangemm()
 {
@@ -43,9 +45,18 @@ void setup() {
 
   Serial.println(F("DONE"));
 
+  Serial.print(F("Initializing BMP180... "));
+
+  if (!bmp.begin()) {
+	Serial.println("FAIL");
+	while (true);
+  }
+
+  Serial.println(F("DONE"));
+
   Serial.println(F("Initialization complete!"));
 }
 
 void loop() {
-  
+
 }
