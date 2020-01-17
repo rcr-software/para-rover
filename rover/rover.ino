@@ -6,6 +6,8 @@
 
 #include "src/main.h"
 
+DriveNode dn;
+
 void setup() {
   Serial.begin(SERIAL_BAUD_RATE);
 
@@ -16,6 +18,8 @@ void setup() {
   Serial.println(F("Initializing..."));
 
   sensing::init();
+
+  dn.init();
 
   Serial.println(F("Initialization complete!"));
 }

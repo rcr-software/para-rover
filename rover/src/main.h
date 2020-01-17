@@ -7,7 +7,10 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include <Wire.h>
+
 #include "Sensing.h"
+#include "DriveNode.h"
 
 #define SERIAL_BAUD_RATE 115200
 
