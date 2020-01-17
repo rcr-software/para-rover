@@ -1,34 +1,13 @@
 /*---------------------------------------------------------------
 *	rover.ino
 *	Author: Ben Ferguson
-*	Date created: 1-14-20
-*	Date modified: 1-14-20
 *	Description: main logic for the rover micro
 ---------------------------------------------------------------*/
 
-#include <Adafruit_VL53L0X.h>
-#include <Adafruit_BMP085.h>
-
-Adafruit_VL53L0X lox = Adafruit_VL53L0X();
-Adafruit_BMP085 bmp;
-
-long lidarGetRangemm()
-{
-	VL53L0X_RangingMeasurementData_t measure;
-
-	lox.rangingTest(&measure, false);
-
-	if (measure.RangeStatus != 4) {
-		return measure.RangeMilliMeter;
-	} 
-
-	else {
-		return -1;
-	}
-}
+#include "src/main.h"
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(SERIAL_BAUD_RATE);
 
   while (!Serial){
   	delay(1);
@@ -36,23 +15,7 @@ void setup() {
 
   Serial.println(F("Initializing..."));
 
-  Serial.print(F("Initialzing VL53L0X..."));
-
-  if (!lox.begin()) {
-    Serial.println(F("FAIL"));
-    while(1);
-  }
-
-  Serial.println(F("DONE"));
-
-  Serial.print(F("Initializing BMP180... "));
-
-  if (!bmp.begin()) {
-	Serial.println("FAIL");
-	while (true);
-  }
-
-  Serial.println(F("DONE"));
+  sensing::init();
 
   Serial.println(F("Initialization complete!"));
 }
