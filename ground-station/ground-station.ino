@@ -1,6 +1,6 @@
 #include <RH_RF95.h>
 
-#include <rover_packet_types.h>
+#include "rover_packet_types.h"
 
 // radio setup section
 #define ROVER 0
@@ -21,7 +21,10 @@
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
 
 // late include :(
-#include <struct_send_receive.h>
+#include "struct_send_receive.h"
+
+
+uint8_t radio_transmit_buffer[RH_RF95_MAX_MESSAGE_LEN];
 
 // setup/loop entry section
 void setup()  {
@@ -59,33 +62,23 @@ void setup()  {
 }
 
 void loop()  {
-    //Serial.println(millis());
-
-    //digitalWrite(LED_BUILTIN, LOW);
     if (Serial.available() > 0) {
-        char in_char = Serial.read();
-        switch (in_char) {
-            case 'w':
-                Serial.println("w going forward");
-                send_joystick(1.0, 0.0, 0.0, 0.0);
-                break;
-            case 'a':
-                Serial.println("a going left");
-                send_joystick(0.0, -1.0, 0.0, 0.0);
-                break;
-            case 's':
-                Serial.println("s going backward");
-                send_joystick(-1.0, 0.0, 0.0, 0.0);
-                break;
-            case 'd':
-                Serial.println("d going rigth");
-                send_joystick(0.0, 1.0, 0.0, 0.0);
-                break;
-            default:
-                Serial.write(in_char);
-                Serial.println(" not recognized");
-                break;
+        unsigned char len = Serial.read();
+        Serial.print("taking in serial of len");
+        Serial.println(len);
+        for (int i = 0; i < len; i++) {
+            while (Serial.available() <= 0); // block until serial available
+            radio_transmit_buffer[i] = Serial.read();
+            Serial.print(radio_transmit_buffer[i], HEX);
+            Serial.print(" ");
         }
+        Serial.println("\nFEEEE");
+        print_struct(radio_transmit_buffer);
+        Serial.println("EEEEF");
+        Serial.println("\nDone, radio transmitting");
+        rf95.send(radio_transmit_buffer, len);
+        rf95.waitPacketSent();
+        Serial.println("Daone transmitting");
     }
     if (rf95.available()) {
         try_receive_message();
