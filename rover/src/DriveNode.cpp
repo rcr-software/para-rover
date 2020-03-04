@@ -78,3 +78,5 @@ void DriveNode::enable(bool enable)
 
 	enabled = enable;
 }
+
+DriveNode dn;

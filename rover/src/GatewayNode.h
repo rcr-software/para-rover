@@ -1,6 +1,7 @@
 #ifndef GATEWAYNODE_H_
 #define GATEWAYNODE_H_
 
+#include "main.h"
 #include "libradio.h"
 #include "packets.h"
 
@@ -8,6 +9,7 @@
 #define RFM95_CS      8   // "B"
 #define RFM95_INT     3    // "D"
 #define RF95_FREQ 915.0
+
 
 class GatewayNode
 {
@@ -17,7 +19,11 @@ class GatewayNode
 		void init();
 
 		void bg();
-}
+};
+
+extern GatewayNode gwn;
+
+
 
 
 #endif

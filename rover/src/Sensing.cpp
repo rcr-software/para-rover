@@ -16,8 +16,8 @@ namespace sensing
 		Serial.print(F("Initialzing VL53L0X..."));
 
 		if (!lox.begin()) {
-		Serial.println(F("FAIL"));
-		while(true);
+            Serial.println(F("FAIL"));
+            //while(true);
 		}
 
 		Serial.println(F("DONE"));
@@ -26,7 +26,7 @@ namespace sensing
 
 		if (!bmp.begin()) {
 		Serial.println("FAIL");
-		while (true);
+            //while (true);
 		}
 
 		Serial.println(F("DONE"));

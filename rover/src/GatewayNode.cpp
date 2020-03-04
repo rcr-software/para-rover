@@ -5,6 +5,7 @@
 #define RFM95_INT     3    // "D"
 #define RF95_FREQ 915.0
 
+
 void GatewayNode::init()
 {
 	radio::init(RFM95_RST, RFM95_CS, RFM95_INT, RF95_FREQ);
@@ -16,7 +17,7 @@ void GatewayNode::bg()
 
 	if (radio::receive())
 	{
-		pacNo = *((uint8_t *)recvBuffer);
+		pacNo = *((uint8_t *)radio::recvBuffer);
 
 		switch (pacNo)
 		{
@@ -26,3 +27,5 @@ void GatewayNode::bg()
 		}
 	}
 }
+
+GatewayNode gwn;

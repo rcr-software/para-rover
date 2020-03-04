@@ -1,19 +1,17 @@
-#include TELOPNODE_H_
+#ifndef TELOPNODE_H_
 #define TELOPNODE_H_
 
 #include "main.h"
+#include "packets.h"
 
 class TelopNode
 {
 	private:
 
 	public:
+		void handle(joystick_t *data);
+};
 
-		void handle(joystick_t *data)
-		{
-			dn.setDriveSpeed(data.y1, data.y2);
-		}
-
-}
+extern TelopNode ton;
 
 #endif

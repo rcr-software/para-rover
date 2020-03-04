@@ -41,5 +41,6 @@ class DriveNode
 		void enable(bool enable);
 
 };
+extern DriveNode dn;
 
 #endif
