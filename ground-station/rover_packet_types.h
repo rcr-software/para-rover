@@ -24,6 +24,9 @@ typedef struct {
     float orientation_z;
 } sensor_data_t;
 
+// NOTE!!!!
+// type 3 reserved for strings 
+
 
 
 #endif

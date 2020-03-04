@@ -1,8 +1,8 @@
 #include "GatewayNode.h"
 
-#define RFM95_RST     4   // "A"
-#define RFM95_CS      8   // "B"
-#define RFM95_INT     3    // "D"
+#define RFM95_RST     11   // "A"
+#define RFM95_CS      10   // "B"
+#define RFM95_INT     6    // "D"
 #define RF95_FREQ 915.0
 
 
@@ -13,16 +13,20 @@ void GatewayNode::init()
 
 void GatewayNode::bg()
 {
-	uint8_t pacNo;
+	int pacNo;
 
 	if (radio::receive())
 	{
-		pacNo = *((uint8_t *)radio::recvBuffer);
+        Serial.println("oh boy gotta packet!");
+        Serial.println(radio::r_len);
+		pacNo = *((int *)radio::recvBuffer);
+        Serial.println(pacNo);
 
 		switch (pacNo)
 		{
 			case PAC_JOYSTICK:
-				ton.handle((joystick_t *)radio::recvBuffer); //or similar
+                Serial.println("It's a joystick!");
+				ton.handle((joystick_t *)radio::recvBuffer); 
 				break;
 		}
 	}

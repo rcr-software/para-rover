@@ -51,6 +51,10 @@ namespace radio
 		{
 	        int packId;
 
+            // NOTE! this is needed: it is treated as max length!
+            // https://github.com/PaulStoffregen/RadioHead/blob/85a4df84c28e3cca2106bae020804b552337f8ea/RH_RF95.cpp#L223
+            r_len = RH_RF95_MAX_MESSAGE_LEN;
+
 	        rf95->recv(recvBuffer, &r_len);
 
 	        return 1;

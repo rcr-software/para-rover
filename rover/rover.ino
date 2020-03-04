@@ -7,9 +7,7 @@
 void setup() {
   Serial.begin(SERIAL_BAUD_RATE);
 
-  while (!Serial){
-  	delay(1);
-  }
+    
 
   Serial.println(F("Initializing..."));
 

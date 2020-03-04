@@ -83,6 +83,9 @@ void print_struct(uint8_t* buffer) {
         case 2:
             print_sensor_data((sensor_data_t*) buffer);
             break;
+        case 3:
+            p("S: "); p(String((char*) buffer+4)); nl();
+            break;
         default:
             Serial.print("dispatch number not recorgnised: ");
             Serial.println(dispatch_number);

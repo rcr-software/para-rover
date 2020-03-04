@@ -32,11 +32,11 @@ class DriveNode
 	public:
 		void init();
 
-		void setMotorSpeed(uint8_t speed, char motorNo);
+		void setMotorSpeed(int speed, char motorNo);
 
-		void setDriveSpeed(uint8_t speed);
+		void setDriveSpeed(int speed);
 
-		void setDriveSpeed(uint8_t lSpeed, uint8_t rSpeed);
+		void setDriveSpeed(int lSpeed, int rSpeed);
 
 		void enable(bool enable);
 

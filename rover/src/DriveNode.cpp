@@ -16,8 +16,8 @@ void DriveNode::init()
 
 	motorFL = afms.getMotor(1);
 	motorFR = afms.getMotor(2);
-	motorRL = afms.getMotor(3);
-	motorRR = afms.getMotor(4);
+	motorRL = afms.getMotor(4);
+	motorRR = afms.getMotor(3);
 
 	motors[MOTOR_FL] = motorFL;
 	motors[MOTOR_FR] = motorFR;
@@ -29,7 +29,7 @@ void DriveNode::init()
 	Serial.println(F("DONE"));
 }
 
-void DriveNode::setMotorSpeed(uint8_t speed, char motorNo)
+void DriveNode::setMotorSpeed(int speed, char motorNo)
 {
 	if (enabled)
 	{
@@ -49,24 +49,32 @@ void DriveNode::setMotorSpeed(uint8_t speed, char motorNo)
 		{
 			direction = RELEASE;
 		}
+
+        if (speed < 0)
+            speed = -speed;
+        if (speed > 255)
+            speed = 255;
+        if (speed < -255)
+            speed = -255;
+
 		
 		motors[motorNo]->run(direction);
-		motors[motorNo]->setSpeed(speed);
+		motors[motorNo]->setSpeed((uint8_t) speed);
 				
 	}
 }
 
-void DriveNode::setDriveSpeed(uint8_t speed)
+void DriveNode::setDriveSpeed(int speed)
 {
 	setDriveSpeed(speed, speed);
 }
 
-void DriveNode::setDriveSpeed(uint8_t lSpeed, uint8_t rSpeed)
+void DriveNode::setDriveSpeed(int lSpeed, int rSpeed)
 {
 	setMotorSpeed(lSpeed, MOTOR_FL);
 	setMotorSpeed(rSpeed, MOTOR_FR);
 	setMotorSpeed(lSpeed, MOTOR_RL);
-	setMotorSpeed(rSpeed, MOTOR_RL);
+	setMotorSpeed(rSpeed, MOTOR_RR);
 }
 
 void DriveNode::enable(bool enable)

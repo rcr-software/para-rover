@@ -9,11 +9,11 @@ typedef struct {
 } triplet_t;
 
 typedef struct {
-    uint8_t type_spec; //1
-    uint8_t x1;
-    uint8_t y1;
-    uint8_t x2;
-    uint8_t y2;
+    int type_spec; //1
+    float x1;
+    float y1;
+    float x2;
+    float y2;
 } joystick_t;
 
 typedef struct {

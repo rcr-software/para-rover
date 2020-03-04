@@ -2,7 +2,7 @@
 
 void TelopNode::handle(joystick_t *data)
 {
-    dn.setDriveSpeed(data->y1, data->y2);
+    dn.setDriveSpeed((int)255*data->y1, (int)255*data->y2);
 }
 
 TelopNode ton;

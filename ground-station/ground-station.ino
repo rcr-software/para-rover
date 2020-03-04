@@ -61,26 +61,35 @@ void setup()  {
     delay(100);
 }
 
-void loop()  {
-    if (Serial.available() > 0) {
-        unsigned char len = Serial.read();
-        Serial.print("taking in serial of len");
-        Serial.println(len);
-        for (int i = 0; i < len; i++) {
-            while (Serial.available() <= 0); // block until serial available
-            radio_transmit_buffer[i] = Serial.read();
-            Serial.print(radio_transmit_buffer[i], HEX);
-            Serial.print(" ");
-        }
-        Serial.println("\nFEEEE");
-        print_struct(radio_transmit_buffer);
-        Serial.println("EEEEF");
-        Serial.println("\nDone, radio transmitting");
-        rf95.send(radio_transmit_buffer, len);
-        rf95.waitPacketSent();
-        Serial.println("Daone transmitting");
-    }
+// 'b' is terminator, 'a' is escape char.
+// Thus, ab->b, aa->a, and unescaped 'b' means finish and send
+int i = 0;
+bool escaped = 0;
+void loop() {
     if (rf95.available()) {
         try_receive_message();
+    }
+
+    if (Serial.available() > 0) {
+        char inchar = Serial.read();
+        // if not escaped and 'a', then escape
+        if (!escaped && inchar == 'a') {
+            escaped = 1;
+            // if not escaped and 'b', then end and send and reset
+        } else if (!escaped && inchar == 'b') {
+            int length = i; // of by one?
+            Serial.println("\nSending this struct with len=");
+            Serial.println(length);
+            print_struct(radio_transmit_buffer);
+            Serial.println("EEEEF");
+            Serial.println("\nDone, radio transmitting");
+            rf95.send(radio_transmit_buffer, length);
+            rf95.waitPacketSent();
+            i = 0;
+        } else {
+            radio_transmit_buffer[i] = inchar;
+            i++;
+            escaped = 0;
+        }
     }
 }
