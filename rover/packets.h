@@ -18,7 +18,9 @@ typedef struct {
 
 typedef struct {
     int type_spec; //2
-    float altitude;
+    long altitude;
+    float temperature;
+    long lidar_distance;
     double gps_x;
     double gps_y;
     float orientation_x;

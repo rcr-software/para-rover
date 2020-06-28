@@ -80,6 +80,8 @@ void loop() {
             int length = i; // of by one?
             Serial.println("\nSending this struct with len=");
             Serial.println(length);
+            // TODO ideally ground station is agnostic to the packet structs,
+            // or print_struct is auto-built from them somehow?
             print_struct(radio_transmit_buffer);
             Serial.println("EEEEF");
             Serial.println("\nDone, radio transmitting");
