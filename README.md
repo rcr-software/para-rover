@@ -1,12 +1,12 @@
 ## Branches
 
 The main branch is now called `main`. Currently there are no other branches
-with up to date code. Note other branches and their purpose in this part of the
+with up to date code. If you add another branch, document them and their purpose in this part of the
 README.
 
 # Setup
 
-Once you have the arduino and a Feather M0 connect, you'll need the aruduino IDE and the 
+Once you have the arduino and a Feather M0 connected, you'll need the aruduino IDE and the 
 following extra steps:
 
 ## Arduino libraries installed using libary manager:
