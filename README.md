@@ -2,9 +2,15 @@
 
 The main branch is now called `main`. Currently there are no other branches
 with up to date code. If you add another branch, document them and their purpose in this part of the
-README.
+readme.
 
 # Setup
+
+## Python setup
+
+See `gui/` python readme
+
+## Arduino Setup
 
 Once you have the arduino and a Feather M0 connected, you'll need the aruduino IDE and the 
 following extra steps:

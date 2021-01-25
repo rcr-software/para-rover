@@ -1,0 +1,4 @@
+pycparser
+pyserial
+pygame
+
