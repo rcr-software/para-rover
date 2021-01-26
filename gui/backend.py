@@ -3,7 +3,7 @@ import serial
 from pygame.locals import *
 
 # local file include
-from packet_parse import pack, unpack
+from packet_parse import pack, unpack, packet_to_streamable
 
 pygame.init()
 pygame.joystick.init()
@@ -16,14 +16,9 @@ print('number joysticks connected:', pygame.joystick.get_count())
 ser = serial.Serial('/dev/tty.usbmodem141401', baudrate=115200)
 print(ser.name)
 
-def n2b(n):
-    'convert int (less that 256) to bytestring with the value'
-    return (n).to_bytes(1, 'big')
 
 def send_bytestring(bs):
-    size = len(bs)
-    checksum = sum(bs) % 256
-    ser.write(n2b(size) + bs + n2b(checksum))
+    ser.write(packet_to_streamable(bs))
 
 def get_joys():
     return [joystick.get_axis(i) for i in range(joystick.get_numaxes())]
