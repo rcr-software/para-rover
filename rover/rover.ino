@@ -1,4 +1,5 @@
 #include "packets.h"
+#include "Buzzer.h"
 
 #include <Wire.h>
 #include <RH_RF95.h>
@@ -16,79 +17,11 @@ uint8_t receive_size;
 uint8_t transmit_buffer[RH_RF95_MAX_MESSAGE_LEN];
 uint8_t transmit_size;
 
+// Buzzer setup
+Buzzer buzzer(5);
+
 // Global for general control mode
 enum {TELEOP, DANCE, SLEEP} mode = SLEEP;
-
-// Motor shield and stepper setup
-// 200 steps per revolution  = 1.8 degree steppers
-Adafruit_MotorShield motor_sheild = Adafruit_MotorShield(); 
-Adafruit_StepperMotor *right_stepper = motor_sheild.getStepper(200, 2);
-Adafruit_StepperMotor *left_stepper = motor_sheild.getStepper(200, 1);
-
-// AccelStepper (using steppers like DC motors) setup
-/* 
-Usage instructions (using right_motor and right_stepper as an exmaple WLOG):
-To drive at a set speed:
-    right_motor.setSpeed(200)
-    in loop: right_motor.runSpeed()
-To rotate to a specific location:
-    right_motor.moveTo(1200)
-    in loop: right_motor.run()
-Notice that the run functions have to be called repeatedly - if your code doesn't
-run them constantly, then the motors won't step until they're called again.
-Also be careful not to call both of them in the same loop. They'll fight and create erratic
-behavior. I had this bug until I added drive disabling and the current mode switching structure.
-*/
-//step options: SINGLE, DOUBLE (more torque), INTERLEAVE (half speed, smoother), MICROSTEP
-#define STEP_TYPE INTERLEAVE
-void left_one_step_forward() { left_stepper->onestep(FORWARD, STEP_TYPE); }
-void left_one_step_backward() { left_stepper->onestep(BACKWARD, STEP_TYPE); }
-void right_one_step_forward() { right_stepper->onestep(FORWARD, STEP_TYPE); }
-void right_one_step_backward() { right_stepper->onestep(BACKWARD, STEP_TYPE); }
-AccelStepper left_motor(left_one_step_forward, left_one_step_backward);
-AccelStepper right_motor(right_one_step_forward, right_one_step_backward);
-
-
-void drive(int left_speed, int right_speed) {
-    // TODO checking for mode==TELEOP isn't great, there should be
-    // some sort of disable mechanism that's controlled by the modes.
-    if (mode == TELEOP) {
-        left_motor.setSpeed(left_speed);
-        right_motor.setSpeed(right_speed);
-    }
-}
-
-
-
-// Buzzer functions
-#define BUZZER_PIN 5
-// call morse with strings like "..---." to flash that code.
-// Yeah, it's not a joke. The serial out is taken up by writing
-// data out, so without software serial and an ftdi friend,
-// it's this or status LEDs.
-// TODO put status LEDs on the board so I can delete this sh*t
-// TODO put into a library so you don't have to copy paste this code in two places
-const int dot_unit = 50;
-void warning(char* str) {
-    for (; *str; str++) {
-        digitalWrite(LED_BUILTIN, HIGH);
-        tone(BUZZER_PIN, 440);
-        if (*str == '.') {
-            delay(1*dot_unit);
-        } else {
-            delay(3*dot_unit);
-        }
-        digitalWrite(LED_BUILTIN, LOW);
-        noTone(BUZZER_PIN);
-        delay(1*dot_unit);
-    }
-    delay(7*dot_unit);
-}
-void error(char* str) {
-    while (1) {
-        warning(str);
-    }
-}
 
 // if this is too large, then turn off the motors.
 int last_joystick_packet = 0;
@@ -121,11 +54,11 @@ void dispatch() {
         } else if (button_code == BUTTON_X) {
             mode = DANCE;
         } else {
-            warning("--");
+            buzzer.warning("--");
         }
     } else {
         Serial.println("TF is this??");
-        warning(".--");
+        buzzer.warning(".--");
     }
 }
 
@@ -135,10 +68,10 @@ void setup() {
 
     // Radio init
     if (!rf95.init()) {
-        error("..");
+        buzzer.error("..");
     }
     if (!rf95.setFrequency(RF95_FREQ)) {
-        error("---");
+        buzzer.error("---");
     }
 
     // Motor shield and accelstepper init (the steppers themselves don't need an init)
