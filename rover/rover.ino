@@ -1,10 +1,7 @@
 #include "packets.h"
-#include "Buzzer.h"
-
 #include <Wire.h>
 #include <RH_RF95.h>
-#include <AccelStepper.h>
-#include <Adafruit_MotorShield.h>
+#include "Motors.h"
 
 // Radio wiring and setup
 #define RFM95_RST 11 // "A"
@@ -22,6 +19,37 @@ Buzzer buzzer(5);
 
 // Global for general control mode
 enum {TELEOP, DANCE, SLEEP} mode = SLEEP;
+
+
+// Buzzer functions
+#define BUZZER_PIN 5
+// call morse with strings like "..---." to flash that code.
+// Yeah, it's not a joke. The serial out is taken up by writing
+// data out, so without software serial and an ftdi friend,
+// it's this or status LEDs.
+// TODO put status LEDs on the board so I can delete this sh*t
+// TODO put into a library so you don't have to copy paste this code in two places
+const int dot_unit = 50;
+void warning(char* str) {
+    for (; *str; str++) {
+        digitalWrite(LED_BUILTIN, HIGH);
+        tone(BUZZER_PIN, 440);
+        if (*str == '.') {
+            delay(1*dot_unit);
+        } else {
+            delay(3*dot_unit);
+        }
+        digitalWrite(LED_BUILTIN, LOW);
+        noTone(BUZZER_PIN);
+        delay(1*dot_unit);
+    }
+    delay(7*dot_unit);
+}
+void error(char* str) {
+    while (1) {
+        warning(str);
+    }
+}
 
 // if this is too large, then turn off the motors.
 int last_joystick_packet = 0;
@@ -41,7 +69,7 @@ void dispatch() {
         joystick_t* joystick = (joystick_t*) receive_buffer; 
         Serial.println((int) 50*joystick->y1);
         Serial.println((int) 50*joystick->y2);
-        drive(100*joystick->y1, 100*joystick->y2);
+        Motors::drive(100*joystick->y1, 100*joystick->y2);
     } else if (packet_number == PAC_SENSOR) {
         Serial.println("Got a sensor? We're supposed to send those, not receive them.");
     } else if (packet_number == PAC_BUTTON) {
@@ -74,13 +102,7 @@ void setup() {
         buzzer.error("---");
     }
 
-    // Motor shield and accelstepper init (the steppers themselves don't need an init)
-    motor_sheild.begin();
-    left_motor.setMaxSpeed(100.0);
-    left_motor.setAcceleration(100.0);
-    right_motor.setMaxSpeed(100.0);
-    right_motor.setAcceleration(100.0);
-    drive(0, 0);
+    Motors::init();
 
     Serial.println("Initialization complete!");
 }
@@ -93,32 +115,26 @@ void loop() {
 
     // If we haven't seen a joystick packet, stop driving. TODO is this smart?
     if (millis() - last_joystick_packet > 500) {
-        drive(0, 0);
+        Motors::drive(0, 0);
     }
 
     // In this mode, the motors run at a set speed, controlled by the joystick
     // TODO bug: under battery power, the left motor periodically stops at equally spaced intervals
     //            about 20 degrees apart
     if (mode == TELEOP) {
-        left_motor.runSpeed();
-        right_motor.runSpeed();
+        Motors::runSpeed();
     }
 
     // In sleep mode, the motors are released so they don't draw any current
     if (mode == SLEEP) {
-        left_stepper->release();
-        right_stepper->release();
+        Motors::release();
     }
 
     // In this mode, we use run() instead of runSpeed() and seek random positions.
     // TODO bug: often only one motor runs, but sometimes both do.
     if (mode == DANCE) {
-        if (left_motor.distanceToGo() == 0)
-            left_motor.moveTo(random(-200, 200));
-        left_motor.run();
-        if (right_motor.distanceToGo() == 0)
-            right_motor.moveTo(random(-200, 200));
-        right_motor.run();
+        Motors::dance();
+        Motors::run();
     }
 
     // If available, receive a packet and act according to what's inside it

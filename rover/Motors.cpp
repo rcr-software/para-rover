@@ -1,8 +1,10 @@
-#include "Arduino.h"
+#include <Arduino.h>
 #include <Wire.h>
 #include <AccelStepper.h>
 #include <Adafruit_MotorShield.h>
-#include "Motors.h"
+
+// Motor shield and stepper setup
+// 200 steps per revolution  = 1.8 degree steppers
 
 // AccelStepper (using steppers like DC motors) setup
 /* 
@@ -19,36 +21,54 @@ Also be careful not to call both of them in the same loop. They'll fight and cre
 behavior. I had this bug until I added drive disabling and the current mode switching structure.
 */
 //step options: SINGLE, DOUBLE (more torque), INTERLEAVE (half speed, smoother), MICROSTEP
-
-// These are intentionally left out of the class... hmm wait... TODO uh
-void left_one_step_forward() { left_stepper->onestep(FORWARD, STEP_TYPE); }
-void left_one_step_backward() { left_stepper->onestep(BACKWARD, STEP_TYPE); }
-void right_one_step_forward() { right_stepper->onestep(FORWARD, STEP_TYPE); }
-void right_one_step_backward() { right_stepper->onestep(BACKWARD, STEP_TYPE); }
-
-// TODO figure out the type of this so I can take it as an argument
 #define STEP_TYPE INTERLEAVE
 
-// Notice the object composition syntax
-Motors::Motors(int steps_per_revolution, int max_speed) :
-    Adafruit_MotorShield motor_shield(),
-    AccelStepper left_motor (left_one_step_forward, left_one_step_backward),
-    AccelStepper right_motor (right_one_step_forward, right_one_step_backward)
-{
-        
-    Adafruit_StepperMotor *right_stepper = motor_sheild.getStepper(200, 2);
-    Adafruit_StepperMotor *left_stepper = motor_sheild.getStepper(200, 1);
-    AccelStepper left_motor = AccelStepper::AccelStepper(left_one_step_forward, left_one_step_backward);
-    AccelStepper right_motor = AccelStepper::AccelStepper(right_one_step_forward, right_one_step_backward);
+namespace Motors {
+    Adafruit_MotorShield motor_shield = Adafruit_MotorShield(); 
+    Adafruit_StepperMotor *right_stepper = motor_shield.getStepper(200, 2);
+    Adafruit_StepperMotor *left_stepper = motor_shield.getStepper(200, 1);
+    void left_one_step_forward() { left_stepper->onestep(FORWARD, STEP_TYPE); }
+    void left_one_step_backward() { left_stepper->onestep(BACKWARD, STEP_TYPE); }
+    void right_one_step_forward() { right_stepper->onestep(FORWARD, STEP_TYPE); }
+    void right_one_step_backward() { right_stepper->onestep(BACKWARD, STEP_TYPE); }
+    AccelStepper left_motor(left_one_step_forward, left_one_step_backward);
+    AccelStepper right_motor(right_one_step_forward, right_one_step_backward);
 
-}
+    void run() {
+        left_motor.run();
+        right_motor.run();
+    }
 
-void Motors::drive(int left_speed, int right_speed) {
-    // TODO checking for mode==TELEOP isn't great, there should be
-    // some sort of disable mechanism that's controlled by the modes.
-    //if (mode == TELEOP) {
+    void runSpeed() {
+        left_motor.runSpeed();
+        right_motor.runSpeed();
+    }
+
+    void release() {
+        left_stepper->release();
+        right_stepper->release();
+    }
+
+    void dance() {
+        if (left_motor.distanceToGo() == 0)
+            left_motor.moveTo(random(-200, 200));
+        if (right_motor.distanceToGo() == 0)
+            right_motor.moveTo(random(-200, 200));
+    }
+
+    void drive(int left_speed, int right_speed) {
         left_motor.setSpeed(left_speed);
         right_motor.setSpeed(right_speed);
-    //}
-}
+    }
 
+    void init() {
+        motor_shield.begin();
+        left_motor.setMaxSpeed(100.0);
+        left_motor.setAcceleration(100.0);
+        right_motor.setMaxSpeed(100.0);
+        right_motor.setAcceleration(100.0);
+        drive(0, 0);
+    }
+
+
+}
