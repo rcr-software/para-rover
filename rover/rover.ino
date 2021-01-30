@@ -1,9 +1,7 @@
 #include "packets.h"
-
 #include <Wire.h>
 #include <RH_RF95.h>
-#include <AccelStepper.h>
-#include <Adafruit_MotorShield.h>
+#include "Motors.h"
 
 // Radio wiring and setup
 #define RFM95_RST 11 // "A"
@@ -18,47 +16,6 @@ uint8_t transmit_size;
 
 // Global for general control mode
 enum {TELEOP, DANCE, SLEEP} mode = SLEEP;
-
-// Motor shield and stepper setup
-// 200 steps per revolution  = 1.8 degree steppers
-Adafruit_MotorShield motor_sheild = Adafruit_MotorShield(); 
-Adafruit_StepperMotor *right_stepper = motor_sheild.getStepper(200, 2);
-Adafruit_StepperMotor *left_stepper = motor_sheild.getStepper(200, 1);
-
-// AccelStepper (using steppers like DC motors) setup
-/* 
-Usage instructions (using right_motor and right_stepper as an exmaple WLOG):
-To drive at a set speed:
-    right_motor.setSpeed(200)
-    in loop: right_motor.runSpeed()
-To rotate to a specific location:
-    right_motor.moveTo(1200)
-    in loop: right_motor.run()
-Notice that the run functions have to be called repeatedly - if your code doesn't
-run them constantly, then the motors won't step until they're called again.
-Also be careful not to call both of them in the same loop. They'll fight and create erratic
-behavior. I had this bug until I added drive disabling and the current mode switching structure.
-*/
-//step options: SINGLE, DOUBLE (more torque), INTERLEAVE (half speed, smoother), MICROSTEP
-#define STEP_TYPE INTERLEAVE
-void left_one_step_forward() { left_stepper->onestep(FORWARD, STEP_TYPE); }
-void left_one_step_backward() { left_stepper->onestep(BACKWARD, STEP_TYPE); }
-void right_one_step_forward() { right_stepper->onestep(FORWARD, STEP_TYPE); }
-void right_one_step_backward() { right_stepper->onestep(BACKWARD, STEP_TYPE); }
-AccelStepper left_motor(left_one_step_forward, left_one_step_backward);
-AccelStepper right_motor(right_one_step_forward, right_one_step_backward);
-
-
-void drive(int left_speed, int right_speed) {
-    // TODO checking for mode==TELEOP isn't great, there should be
-    // some sort of disable mechanism that's controlled by the modes.
-    if (mode == TELEOP) {
-        left_motor.setSpeed(left_speed);
-        right_motor.setSpeed(right_speed);
-    }
-}
-
-
 
 // Buzzer functions
 #define BUZZER_PIN 5
@@ -108,7 +65,7 @@ void dispatch() {
         joystick_t* joystick = (joystick_t*) receive_buffer; 
         Serial.println((int) 50*joystick->y1);
         Serial.println((int) 50*joystick->y2);
-        drive(100*joystick->y1, 100*joystick->y2);
+        Motors::drive(100*joystick->y1, 100*joystick->y2);
     } else if (packet_number == PAC_SENSOR) {
         Serial.println("Got a sensor? We're supposed to send those, not receive them.");
     } else if (packet_number == PAC_BUTTON) {
@@ -141,13 +98,7 @@ void setup() {
         error("---");
     }
 
-    // Motor shield and accelstepper init (the steppers themselves don't need an init)
-    motor_sheild.begin();
-    left_motor.setMaxSpeed(100.0);
-    left_motor.setAcceleration(100.0);
-    right_motor.setMaxSpeed(100.0);
-    right_motor.setAcceleration(100.0);
-    drive(0, 0);
+    Motors::init();
 
     Serial.println("Initialization complete!");
 }
@@ -160,32 +111,26 @@ void loop() {
 
     // If we haven't seen a joystick packet, stop driving. TODO is this smart?
     if (millis() - last_joystick_packet > 500) {
-        drive(0, 0);
+        Motors::drive(0, 0);
     }
 
     // In this mode, the motors run at a set speed, controlled by the joystick
     // TODO bug: under battery power, the left motor periodically stops at equally spaced intervals
     //            about 20 degrees apart
     if (mode == TELEOP) {
-        left_motor.runSpeed();
-        right_motor.runSpeed();
+        Motors::runSpeed();
     }
 
     // In sleep mode, the motors are released so they don't draw any current
     if (mode == SLEEP) {
-        left_stepper->release();
-        right_stepper->release();
+        Motors::release();
     }
 
     // In this mode, we use run() instead of runSpeed() and seek random positions.
     // TODO bug: often only one motor runs, but sometimes both do.
     if (mode == DANCE) {
-        if (left_motor.distanceToGo() == 0)
-            left_motor.moveTo(random(-200, 200));
-        left_motor.run();
-        if (right_motor.distanceToGo() == 0)
-            right_motor.moveTo(random(-200, 200));
-        right_motor.run();
+        Motors::dance();
+        Motors::run();
     }
 
     // If available, receive a packet and act according to what's inside it
