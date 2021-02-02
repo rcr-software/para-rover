@@ -17,15 +17,15 @@ Buzzer::Buzzer(int pin) {
 // Beeps string (such as ".-.--") once.
 void Buzzer::warning(char* str) {
     for (; *str; str++) {
-        digitalWrite(LED_BUILTIN, HIGH);
-        tone(BUZZER_PIN, 440);
+        //digitalWrite(LED_BUILTIN, HIGH);
+        tone(_pin, 440);
         if (*str == '.') {
             delay(1*DOT_UNIT);
         } else {
             delay(3*DOT_UNIT);
         }
-        digitalWrite(LED_BUILTIN, LOW);
-        noTone(BUZZER_PIN);
+        //digitalWrite(LED_BUILTIN, LOW);
+        noTone(_pin);
         delay(1*DOT_UNIT);
     }
     // Not 8 because of the 1 above
@@ -35,7 +35,7 @@ void Buzzer::warning(char* str) {
 // same as warning but loops forever.
 void Buzzer::error(char* str) {
     while (1) {
-        warning(str);
+        this->warning(str);
     }
 }
 

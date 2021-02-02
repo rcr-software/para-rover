@@ -3,12 +3,12 @@
 
 #include "Arduino.h"
 
-class Morse
+class Buzzer
 {
   public:
     Buzzer(int pin);
-    void warning();
-    void error();
+    void warning(char*);
+    void error(char*);
   private:
     int _pin;
 };

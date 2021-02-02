@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <RH_RF95.h>
 #include "Motors.h"
+#include "Buzzer.h"
 
 // Radio wiring and setup
 #define RFM95_RST 11 // "A"
@@ -18,38 +19,9 @@ uint8_t transmit_size;
 Buzzer buzzer(5);
 
 // Global for general control mode
-enum {TELEOP, DANCE, SLEEP} mode = SLEEP;
+enum {TELEOP, DANCE, SLEEP} mode = TELEOP;
 
 
-// Buzzer functions
-#define BUZZER_PIN 5
-// call morse with strings like "..---." to flash that code.
-// Yeah, it's not a joke. The serial out is taken up by writing
-// data out, so without software serial and an ftdi friend,
-// it's this or status LEDs.
-// TODO put status LEDs on the board so I can delete this sh*t
-// TODO put into a library so you don't have to copy paste this code in two places
-const int dot_unit = 50;
-void warning(char* str) {
-    for (; *str; str++) {
-        digitalWrite(LED_BUILTIN, HIGH);
-        tone(BUZZER_PIN, 440);
-        if (*str == '.') {
-            delay(1*dot_unit);
-        } else {
-            delay(3*dot_unit);
-        }
-        digitalWrite(LED_BUILTIN, LOW);
-        noTone(BUZZER_PIN);
-        delay(1*dot_unit);
-    }
-    delay(7*dot_unit);
-}
-void error(char* str) {
-    while (1) {
-        warning(str);
-    }
-}
 
 // if this is too large, then turn off the motors.
 int last_joystick_packet = 0;
@@ -66,10 +38,11 @@ void dispatch() {
         triplet = (triplet_t *)receive_buffer; 
     } else if (packet_number == PAC_JOYSTICK) {
         last_joystick_packet = millis();
+        mode = TELEOP;
         joystick_t* joystick = (joystick_t*) receive_buffer; 
-        Serial.println((int) 50*joystick->y1);
-        Serial.println((int) 50*joystick->y2);
-        Motors::drive(100*joystick->y1, 100*joystick->y2);
+        Serial.println((int) joystick->y1);
+        Serial.println((int) joystick->y2);
+        Motors::drive(joystick->y1, joystick->y2);
     } else if (packet_number == PAC_SENSOR) {
         Serial.println("Got a sensor? We're supposed to send those, not receive them.");
     } else if (packet_number == PAC_BUTTON) {
@@ -116,6 +89,7 @@ void loop() {
     // If we haven't seen a joystick packet, stop driving. TODO is this smart?
     if (millis() - last_joystick_packet > 500) {
         Motors::drive(0, 0);
+        mode = SLEEP;
     }
 
     // In this mode, the motors run at a set speed, controlled by the joystick
@@ -152,21 +126,14 @@ void loop() {
     if (millis() - interval_start > 10000) {
         interval_start = millis();
         // TODO uncomment this, repair it, and test it
-        /*
         triplet_t foo;
+        foo.type_spec = 1;
         foo.a = 1;
         foo.b = 2;
         foo.c = 3;
         // Horray for double unsafe cast!
-        warning(".");
         memcpy(transmit_buffer, &foo, sizeof(foo));
         transmit_size = sizeof(foo);
-        //rf95.send((uint8_t*)(void*) &foo, sizeof(foo));
-        */
-        transmit_buffer[0] = 0;
-        transmit_buffer[1] = 42;
-        transmit_buffer[2] = 43;
-        rf95.send(transmit_buffer, 3);
+        rf95.send(transmit_buffer, sizeof(foo));
     }
-
 }

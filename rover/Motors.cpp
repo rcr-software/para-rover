@@ -63,9 +63,9 @@ namespace Motors {
 
     void init() {
         motor_shield.begin();
-        left_motor.setMaxSpeed(100.0);
+        left_motor.setMaxSpeed(9000.0);
         left_motor.setAcceleration(100.0);
-        right_motor.setMaxSpeed(100.0);
+        right_motor.setMaxSpeed(9000.0);
         right_motor.setAcceleration(100.0);
         drive(0, 0);
     }
