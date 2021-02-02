@@ -1,12 +1,31 @@
 #include "Arduino.h"
 #include "Buzzer.h"
+
+
+/* Example Usage:
+#include "Buzzer.h"
+Buzzer buzzer(5);
+void init() {}
+void loop() {
+    if (notable_thing)
+        buzzer.warning(".");
+    if (mildly_bad_thing)
+        buzzer.warning("--");
+    if (unfixable_bad_thing)
+        buzzer.warning("---...");
+}
+*/
+
+// this is how many milliseconds a dot takes.
 #define DOT_UNIT 50
 
 // Class stucture based on the cannonical tutorial:
 // https://www.arduino.cc/en/Hacking/libraryTutorial
 
-// Why? well... It's really nice for audible warnings when somethings gone wrong and debugging time
-// sequences (like radio back and forth). Maybe it's foolish but I like beepy tech.
+// Why do we buzz? well... It's really nice for audible warnings when somethings gone wrong and
+// debugging time sequences (like radio back and forth). Maybe it's foolish but I like beepy tech.
+// Helpful so you don't have to always have serial moniter connected. Problematic because it spends
+// a LONG time busy when you warn, so motors stall and incoming radio packets get missed.
 
 // init function
 Buzzer::Buzzer(int pin) {

@@ -8,6 +8,14 @@
 - `packets.h` - Structs used to talk over the radio. This file is read by the GUI to interpret
   structs from the rover, so changes only have to happen here.
 
+# Adding a class
+
+1. Always include an "example usage" section near the top, even if it's obvious how to use it
+2. Keep the project start shaped. That is, `rover.ino` should import other classes which only rely
+on builtin or downloaded libraries. More complex import structure should be carefully debated. Stay
+away from using externs.
+    - For example, don't make a radio wrapper library, its concerns are dependent on code in `rover.ino`.
+      The downloaded radio library requires minimal code already.
 
 # Multi-file organization
 

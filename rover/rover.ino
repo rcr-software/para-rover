@@ -21,31 +21,33 @@ Buzzer buzzer(5);
 // Global for general control mode
 enum {TELEOP, DANCE, SLEEP} mode = TELEOP;
 
-
-
 // if this is too large, then turn off the motors.
 int last_joystick_packet = 0;
 
 void dispatch() {
+    // Get first 4 bytes as an int to know what type of struct is in the packet.
+    // See `packets.h` for details on whats in each packet
     int packet_number = *((int *)receive_buffer);
-    // NOTE this has to be an if/else so that variable can be declared inside
+    // NOTE this has to be an if/else instead of swtich/case so that variable can be declared inside
     if (packet_number == PAC_STRING) {
+        // TODO this is untested. So are string on the groundstation
         Serial.println("Got a string, printing");
         Serial.println(((string_t*)receive_buffer)->string);
     } else if (packet_number == PAC_TRIPLET) {
         triplet_t* triplet;
         Serial.println("Got a triplet");
-        triplet = (triplet_t *)receive_buffer; 
+        triplet = (triplet_t *)receive_buffer;
     } else if (packet_number == PAC_JOYSTICK) {
         last_joystick_packet = millis();
         mode = TELEOP;
-        joystick_t* joystick = (joystick_t*) receive_buffer; 
+        joystick_t* joystick = (joystick_t*) receive_buffer;
         Serial.println((int) joystick->y1);
         Serial.println((int) joystick->y2);
         Motors::drive(joystick->y1, joystick->y2);
     } else if (packet_number == PAC_SENSOR) {
         Serial.println("Got a sensor? We're supposed to send those, not receive them.");
     } else if (packet_number == PAC_BUTTON) {
+        // TODO update this with controller buttons since we ditched ps3 controller
         button_t* button = (button_t*) receive_buffer;
         button_code_t button_code = (button_code_t) button->button;
         if (button_code == BUTTON_SELECT) {
@@ -67,7 +69,7 @@ void setup() {
     Serial.println("Initializing...");
     Serial.begin(9600);
 
-    // Radio init
+    // Radio init. If either fails, error will loop forever beeping the error.
     if (!rf95.init()) {
         buzzer.error("..");
     }
@@ -86,7 +88,7 @@ void loop() {
     // TODO configure watchdog timer to reset in case some code is
     // accidentally blocking or (more likely) crashes the board.
 
-    // If we haven't seen a joystick packet, stop driving. TODO is this smart?
+    // If we haven't seen a joystick packet in .5 seconds, stop driving.
     if (millis() - last_joystick_packet > 500) {
         Motors::drive(0, 0);
         mode = SLEEP;
@@ -94,7 +96,8 @@ void loop() {
 
     // In this mode, the motors run at a set speed, controlled by the joystick
     // TODO bug: under battery power, the left motor periodically stops at equally spaced intervals
-    //            about 20 degrees apart
+    //            about 20 degrees apart. Probably a heat issue - needs resoldering or lower voltage
+    //            power supply, not sure.
     if (mode == TELEOP) {
         Motors::runSpeed();
     }
@@ -106,6 +109,8 @@ void loop() {
 
     // In this mode, we use run() instead of runSpeed() and seek random positions.
     // TODO bug: often only one motor runs, but sometimes both do.
+    // Purpose: This mode is made to show off the mode system and how a dispatch can affect loop control flow
+    // in a non-blocking way.
     if (mode == DANCE) {
         Motors::dance();
         Motors::run();
@@ -131,7 +136,11 @@ void loop() {
         foo.a = 1;
         foo.b = 2;
         foo.c = 3;
-        // Horray for double unsafe cast!
+        // Horray unsafe casts!
+        // Note that we don't actually have to copy to this buffer, we could pass the pointer to
+        // foo directly into rf95.send. However, this feels like the better thing to do. 
+        // rf95.send might access that buffer later in an interrupt so I don't want to risk passing
+        // it a pointer to stack memory.
         memcpy(transmit_buffer, &foo, sizeof(foo));
         transmit_size = sizeof(foo);
         rf95.send(transmit_buffer, sizeof(foo));
