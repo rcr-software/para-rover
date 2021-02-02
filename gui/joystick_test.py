@@ -11,7 +11,7 @@ pygame.init()
 pygame.joystick.init()
 joystick = pygame.joystick.Joystick(0)
 joystick.init()
-ser = SerialWrapper('/dev/cu.usbmodem141401')
+ser = SerialWrapper('/dev/cu.usbmodem142401')
 
 print('number joysticks connected:', pygame.joystick.get_count())
 
@@ -29,7 +29,7 @@ def get_number_of_new_button(new_buttons, last_buttons):
             return i
 
 def send_joystick():
-    nj = [800*x for x in get_joys()]
+    nj = [150*x for x in get_joys()]
     vert = nj[0]
     hor = -nj[3]
     ser.send_struct('joystick_t', {'x1': 0, 'y1': vert + hor, 'x2': 0, 'y2': vert - hor})

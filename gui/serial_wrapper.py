@@ -66,4 +66,4 @@ class FileWrapper:
         pass
 
 #real_serial = SerialWrapper('/dev/tty.usbmodem141401')
-fake_serial = FileWrapper('fake_data.bin')
+#fake_serial = FileWrapper('fake_data.bin')
