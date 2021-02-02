@@ -31,7 +31,7 @@ Adafruit boards instructions:
 
 All you have to do is add
 <https://adafruit.github.io/arduino-board-index/package_adafruit_index.json>
-in preferences > Additional Boards Manager Urls
+in `preferences > Additional Boards Manager Urls`
 
 Then add "Adafruit SAMD Boards" in the boards manager
 
