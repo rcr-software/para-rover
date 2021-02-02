@@ -53,9 +53,11 @@ double clicking the rover's reset button should fix most of them.
 4. Unplug the rover and plug in the ground station. Optionaly, also upload `ground-station.ino` to
     the ground station. It shouldn't ever need to be changed but it doesn't hurt to upload to it to
     make sure the code is still fresh ;)
-6. Plug in the Taranis Q controller. It has to be turned on while unplugged, then plugged on. Also
-    it will rattle furiously when the trims pass center or if you leave it on without touching it for a
-    few minutes. Terrifying. Also it takes AA batteries, wasteful but fine for now.
+6. Plug in the Taranis Q controller. It has to be turned on while unplugged, then plugged on. It's
+    power button is hidden under the metal spike in the middle, between the two verticle time
+    bumpers. Also it will rattle furiously when the trims pass center or if you leave it on without
+    touching it for a few minutes. Terrifying. Also it takes AA batteries, wasteful but fine for
+    now.
 7. open `gui/` in a terminal and run `python3 serial_wrapper.py`
     - if it says `"serial.serialutil.SerialException: [Errno 2] could not open port
       /dev/cu.usbmodem141401: [Errno 2] No such file or directory: ..."`, then you need to go into
@@ -74,6 +76,8 @@ double clicking the rover's reset button should fix most of them.
 11. Unplug the rover batteries when not in use, and occastionally check them with the voltage alarm
     to see if they need charging.
 
+12. Unplug ground station and joystick. Hold joystick power button to turn it off. It will buzz at
+    you.
 # Tricky stuff
 
 The `RH_RF95::recv(uint8_t* buf, uint8_t* len)` function is sneaky! 
@@ -95,8 +99,7 @@ Also see the notes in rover/Motors.cpp about AccelStepper. It is tricky.
 - Sensor data receiving in the gui backend I have right now 
 - Make the rover echo back an acknoledgement for each packet it receives
     - The GUI should eventually show when communication is getting spotty.
-- Display GUI for that data (this will be assigned to Bhumika)
-    - I need to make a synthetic data file for her to use to test the gui
+- Display GUI for that data
 - Obstacle avoiding using the LIDAR. Keeton can handle this.
 - Staging protocol (in rocket, release, etc)
 - Backing up data in SD card
