@@ -14,7 +14,7 @@ def struct_ast_to_list(d):
         if type(decl.type) != c_ast.TypeDecl:
             continue
         ls.append((decl.type.declname, tuple(decl.type.type.names)))
-    return tuple(ls)
+    return ls
 
 def extract_structs(ast):
     structs = []
@@ -22,7 +22,7 @@ def extract_structs(ast):
         structs.append((ast.name, struct_ast_to_list(ast.type.type)))
     for _, c in ast.children():
         structs += extract_structs(c)
-    return tuple(structs)
+    return structs
 
 structs = extract_structs(ast)
 
@@ -49,8 +49,8 @@ def pack(type_name, data):
     if types == None:
         raise Exception(type_name + ' is not a type')
 
-    assert len(types) == 1 + len(kwargs), 'you have the wrong number of entries for this struct'
-    for (correct_name, types_list) in types[1:]
+    assert len(types) == 1 + len(data), 'you have the wrong number of entries for this struct'
+    for (correct_name, types_list) in types[1:]:
         if correct_name not in data:
             raise Exception('data dict missing key ', correct_name)
     foo = type_list_to_struct_spec(types)
@@ -72,7 +72,7 @@ def stream_to_packet(stream):
     length = stream[0]
     check_byte = stream[-1]
     packet = stream[1:-1]
-    if len(payload) != length:
+    if len(packet) != length:
         raise Exception("Incorrect length byte!")
     if sum(list(packet)) != check_byte:
         raise Exception("Check checksum failed")

@@ -4,13 +4,15 @@ Make sure your Python and pip are both Python 3. Then install requirements with:
 
 `pip -r requirements.txt`
 
-# Running
+Then, connect the joystick and run `python joystick_test.py`. That's it!
 
-First, modify this line in `joystick_test.py` to point to ther ground station serial device:
+If you have `python` and `python3` installed, then use `python3` and `pip3` where applicable.
 
-`ser = serial.Serial('/dev/tty.usbmodem141401', baudrate=115200)`
+# GUI
 
-Then, with ground station connected, rover power on, and ps3 controller connected over blutooth (and
-not plugged in), run
+There is not GUI yet.
 
-`python joystick_test.py`
+# Issues
+
+The toggles on the joystick don't show up in pygame.joystick, we might need to switch to a different
+input library. The joysticks work, though.

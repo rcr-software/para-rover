@@ -26,14 +26,16 @@ def long_stream_to_struct(long_stream):
         and returns (extra_bytes, (name, struct)).
        Returns long_steam, None is there aren't enough bytes.
     '''
+    if len(long_stream) == 0:
+        return long_stream, None
     packet_length = long_stream[0]
     length_if_ready = packet_length + 2
     if len(long_stream) >= length_if_ready:
         stream = long_stream[:length_if_ready]
-        extra_bytes = long_stream[length_if_read:]
+        extra_bytes = long_stream[length_if_ready:]
         packet = stream_to_packet(stream)
         name, struct = unpack(packet)
-        return extra_bytes, name, struct
+        return extra_bytes, (name, struct)
     return long_stream, None
 
 
@@ -48,10 +50,10 @@ class SerialWrapper:
         self.incoming_stream, name_and_struct = long_stream_to_struct(self.incoming_stream)
         return name_and_struct
 
-    def send_struct(name, data):
+    def send_struct(self, name, data):
         self.ser.write(packet_to_stream(pack(name, data)))
 
-class FileWrapper
+class FileWrapper:
     def __init__(self, filename):
         with open(filename, 'rb') as fp:
             self.incoming_stream = fp.read()
