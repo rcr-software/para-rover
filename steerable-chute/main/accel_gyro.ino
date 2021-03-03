@@ -140,3 +140,62 @@ void Initialize_Gyro() {
     break;
   }
 }
+
+void IMU_Objects() {
+  sensors_event_t accel, gyro, temp;
+  lsm6ds.getEvent(&accel, &gyro, &temp);
+}
+
+double init_AccelX() {
+  sensors_event_t accel, gyro, temp;
+  lsm6ds.getEvent(&accel, &gyro, &temp);
+
+  double AccelX = (atan2(accel.acceleration.z,accel.acceleration.y)*(-1)*RAD_TO_DEG)+180;
+//  Serial.print("init_AccelX: ");
+//  Serial.println(AccelX, 5);
+
+  return AccelX;
+}
+
+double init_AccelY() {
+  sensors_event_t accel, gyro, temp;
+  lsm6ds.getEvent(&accel, &gyro, &temp);
+
+  double AccelY = (atan2(accel.acceleration.z,accel.acceleration.x)*RAD_TO_DEG);
+//  Serial.print("init_AccelY: ");
+//  Serial.println(AccelY, 5);
+
+  return AccelY;
+}
+
+void init_Angle() {
+  for (int i = 0; i < 99; i++) {
+    gyroX+=init_AccelX()/100;
+    gyroY+=init_AccelY()/100;
+
+    delay(10);
+  }
+}
+
+void timer() {
+  prevTime = currTime;
+  currTime = millis();
+  elapsedTime = (currTime - prevTime) / 1000;
+}
+
+void GyroAccelAngle() {
+  sensors_event_t accel, gyro, mag, temp;
+  lsm6ds.getEvent(&accel, &gyro, &temp);
+  
+  timer();
+  accelX = init_AccelX();
+  accelY = init_AccelY();
+
+  Serial.println(" ");
+
+  gyroX = gyroX + (gyro.gyro.x*RAD_TO_DEG)*elapsedTime;
+  gyroY = gyroY + (gyro.gyro.y*RAD_TO_DEG)*elapsedTime;
+  
+  filterAngleX = Kalman(accelX, gyro.gyro.x, elapsedTime);
+  filterAngleY = Kalman(accelY, gyro.gyro.y, elapsedTime);
+}
