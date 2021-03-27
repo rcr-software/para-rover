@@ -1,9 +1,6 @@
 void printGPS() {
-  if (Serial.available()) {
-    char c = Serial.read();
-    GPSSerial.write(c);
-  }
   if (GPSSerial.available()) {
+    gpsData = GPSSerial.readString();
     char c = GPSSerial.read();
     Serial.write(c);
   }

@@ -32,24 +32,44 @@ void Initialize_RFM() {
   rf95.setTxPower(23, false);
 }
 
-void helloWorld() {
+void sendData() {
   Serial.println("Transmitting..."); // Send a message to rf95_server
+
+  int16_t rssi = (int16_t)(rf95.lastRssi());
+  char radiopacket = 'C';
+
   
-  char radiopacket[20] = "Hello World #      ";
-  itoa(packetnum++, radiopacket+13, 10);
-  Serial.print("Sending "); Serial.println(radiopacket);
-  radiopacket[19] = 0;
+  sprintf(buffer, "%c, %d, %d", radiopacket, packetnum, rssi);
+  sendLen = strlen(buffer);  //get the length of buffer
+  
+  
+  
+
+  //Serial.print("rssi LAST: ");
+  //Serial.println(rssi, DEC);
+  
+  //itoa(rssi, radiopacket+13, 10);
+  Serial.print("Sending "); Serial.println(buffer);
+  //radiopacket[19] = 0;
   
   Serial.println("Sending...");
   delay(10);
-  rf95.send((uint8_t *)radiopacket, 20);
+  //rf95.send((uint8_t *)radiopacket, 6);
+  rf95.send((uint8_t *) buffer, sendLen);
+  //rf95.send((uint8_t *)rssi, 7);
  
   Serial.println("Waiting for packet to complete..."); 
   delay(10);
   rf95.waitPacketSent();
   // Now wait for a reply
+}
+
+
+void receiveData() {
   uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
   uint8_t len = sizeof(buf);
+
+  packetnum += 1;
  
   Serial.println("Waiting for reply...");
   if (rf95.waitAvailableTimeout(1000))
@@ -60,7 +80,9 @@ void helloWorld() {
       Serial.print("Got reply: ");
       Serial.println((char*)buf);
       Serial.print("RSSI: ");
-      Serial.println(rf95.lastRssi(), DEC);    
+      Serial.println(rf95.lastRssi(), DEC);  
+      rData = String((char*)buf);
+        
     }
     else
     {

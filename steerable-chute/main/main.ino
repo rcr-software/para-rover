@@ -15,9 +15,9 @@ Adafruit_LIS3MDL lis3mdl;
 #include <SPI.h>
 #include <RH_RF95.h>
 
-#define RFM95_CS 8
-#define RFM95_RST 4
-#define RFM95_INT 3
+#define RFM95_CS 10
+#define RFM95_RST 11
+#define RFM95_INT 6
 
 // Change to 434.0 or other frequency, must match RX's freq!
 #define RF95_FREQ 915.0
@@ -34,7 +34,10 @@ using namespace BLA;
 
 BLA::Matrix<2,2> P;
 BLA::Matrix<2,1> K; // Kalman gain - This is a 2x1 vector
-  
+
+//GPS Variables
+String gpsData;
+
 //Kalman Filter Declarations
 float rate = 0;
 float bias = 0;
@@ -66,7 +69,12 @@ double filterAngleZ = 0;
 
 //RFM Variables
 int16_t packetnum = 0;  // packet counter, we increment per xmission
- 
+byte sendLen;
+byte sendLen2;
+char buffer[50];
+char buffer1[10];
+String rData;
+
 void setup(void) {
   Serial.begin(115200);
   while (!Serial)
@@ -88,17 +96,28 @@ void setup(void) {
  
 
 void loop() {
-  printIMU();
-  GyroAccelAngle();
+  //printIMU();
+  //GyroAccelAngle();
   
 
   
   
 
-   
-//  helloWorld(); //Tests if RFM9x is working
-//  printGPS();  //Tests if GPS is working
-  delay(100);
+  rData = "z";
+  receiveData();
+
+  if(rData.indexOf("s") > -1) {
+    sendData();
+    Serial.println("Data SENT");
+  } 
+  Serial.print("rData: ");
+  Serial.println(rData);
+
+
+  
+  //printGPS();  //Tests if GPS is working
+  //Serial.println(gpsData);
+  delay(1);
  
 }
 
