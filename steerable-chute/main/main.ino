@@ -4,6 +4,18 @@
  *  3) For the RFM9x, download: https://cdn-learn.adafruit.com/assets/assets/000/035/106/original/RadioHead-1.62.zip?1472068723 (RadioHead)
  */
 
+
+/*
+ * On ESP8266, the SD CS pin is on GPIO 15
+On Atmel M0, M4, 328p or 32u4 it's on GPIO 10
+On Teensy 3.x it's on GPIO 10
+On STM32F2/WICED, its on PB5
+On ESP32, it's on GPIO 33
+On nRF52832, it's on GPIO 11
+On nRF52840, it's on GPIO 10
+ */
+
+
 //IMU Libraries & Declarations
 #include <Adafruit_LSM6DSOX.h>
 Adafruit_LSM6DSOX lsm6ds;
@@ -77,6 +89,11 @@ byte sendLen2;
 char buffer[50];
 char buffer1[10];
 String rData;
+
+//Adalogger
+#include <SD.h>
+#define cardSelect 4
+File logfile;
 
 void setup(void) {
   Serial.begin(115200);
