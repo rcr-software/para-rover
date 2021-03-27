@@ -26,7 +26,10 @@ Adafruit_LIS3MDL lis3mdl;
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
 
 //GPS Declarations
+#include <Adafruit_GPS.h>
 #define GPSSerial Serial1
+Adafruit_GPS GPS(&GPSSerial);
+#define GPSECHO false
 
 //Filter Library & Declarations
 #include <BasicLinearAlgebra.h>
@@ -91,7 +94,7 @@ void setup(void) {
   init_Angle();
 
   //Initializing GPS
-  GPSSerial.begin(9600);
+  Initialize_GPS();
 }
  
 
@@ -103,21 +106,21 @@ void loop() {
   
   
 
-  rData = "z";
-  receiveData();
-
-  if(rData.indexOf("s") > -1) {
-    sendData();
-    Serial.println("Data SENT");
-  } 
-  Serial.print("rData: ");
-  Serial.println(rData);
+//  rData = "z";
+//  receiveData();
+//
+//  if(rData.indexOf("s") > -1) {
+//    sendData();
+//    Serial.println("Data SENT");
+//  } 
+//  Serial.print("rData: ");
+//  Serial.println(rData);
 
 
   
-  //printGPS();  //Tests if GPS is working
+  printGPS();  //Tests if GPS is working
   //Serial.println(gpsData);
-  delay(1);
+  delay(100);
  
 }
 
