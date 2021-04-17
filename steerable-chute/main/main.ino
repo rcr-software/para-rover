@@ -43,6 +43,8 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);
 Adafruit_GPS GPS(&GPSSerial);
 #define GPSECHO false
 
+float gpsLong, gpsLat, gpsAlt;
+
 //Filter Library & Declarations
 #include <BasicLinearAlgebra.h>
 using namespace BLA;
@@ -50,8 +52,8 @@ using namespace BLA;
 BLA::Matrix<2,2> P;
 BLA::Matrix<2,1> K; // Kalman gain - This is a 2x1 vector
 
-//GPS Variables
-String gpsData;
+////GPS Variables
+//String gpsData;
 
 //Kalman Filter Declarations
 float rate = 0;
@@ -90,10 +92,10 @@ char buffer[50];
 char buffer1[10];
 String rData;
 
-//Adalogger
-#include <SD.h>
-#define cardSelect 4
-File logfile;
+////Adalogger
+//#include <SD.h>
+//#define cardSelect 4
+//File logfile;
 
 void setup(void) {
   Serial.begin(115200);
@@ -118,14 +120,16 @@ void setup(void) {
 void loop() {
   //printIMU();
   //GyroAccelAngle();
+  //printGPS();
   
 
   
   
 
-//  rData = "z";
-//  receiveData();
-//
+  rData = "z";
+  receiveData();
+  sendData();
+
 //  if(rData.indexOf("s") > -1) {
 //    sendData();
 //    Serial.println("Data SENT");
@@ -135,9 +139,8 @@ void loop() {
 
 
   
-  printGPS();  //Tests if GPS is working
   //Serial.println(gpsData);
-  delay(100);
+  delay(200);
  
 }
 

@@ -24,13 +24,16 @@ void printGPS() {
   Serial.print("Fix: "); Serial.print((int)GPS.fix);
   Serial.print(" quality: "); Serial.println((int)GPS.fixquality);
   if (GPS.fix) {
-    Serial.print("Location: ");
-    Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
-    Serial.print(", ");
-    Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
-    Serial.print("Speed (knots): "); Serial.println(GPS.speed);
-    Serial.print("Angle: "); Serial.println(GPS.angle);
-    Serial.print("Altitude: "); Serial.println(GPS.altitude);
-    Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+    gpsLong = (float)GPS.longitude;
+    gpsLat = (float)GPS.latitude;
+    gpsAlt = (float)GPS.altitude;
+  // Serial.print("Location: ");
+  // Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
+  // Serial.print(", ");
+  // Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
+  // Serial.print("Speed (knots): "); Serial.println(GPS.speed);
+  // Serial.print("Angle: "); Serial.println(GPS.angle);
+  // Serial.print("Altitude: "); Serial.println(GPS.altitude);
+  // Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
   }
 }
