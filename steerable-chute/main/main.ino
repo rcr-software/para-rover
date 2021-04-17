@@ -69,7 +69,7 @@ float R_measure = 0.03;
 //IMU Declarations
 double prevTime = 0;
 double currTime = 0;
-float elapsedTime = 0;
+float elapsedTime = 0.1;
 
 double accelX = 0;
 double accelY = 0;
@@ -91,6 +91,9 @@ byte sendLen2;
 char buffer[50];
 char buffer1[10];
 String rData;
+
+float startup;
+float initGyroBias;
 
 ////Adalogger
 //#include <SD.h>
@@ -114,21 +117,23 @@ void setup(void) {
 
   //Initializing GPS
   Initialize_GPS();
+
+  startup = millis();
 }
  
 
 void loop() {
-  //printIMU();
-  //GyroAccelAngle();
+  printIMU();
+  GyroAccelAngle();
   //printGPS();
   
 
   
   
 
-  rData = "z";
-  receiveData();
-  sendData();
+  //rData = "z";
+  //receiveData();
+  //sendData();
 
 //  if(rData.indexOf("s") > -1) {
 //    sendData();
@@ -170,9 +175,22 @@ void printIMU() {
 //  Serial.println(" \tradians/s \n");
 
 
-//  Serial.print("kalman_Y:  ");
-  Serial.println(filterAngleY, 4);
-  Serial.print(" ");
+//  Serial.print("kalman_Y:  ");          KALMAN FILTER PRINT TEST
+//  Serial.println(filterAngleY, 4);
+//  Serial.print(" ");
+
+    Serial.print("Accel_X:");
+    Serial.print(accelX);
+    Serial.print(",");
+
+    Serial.print("Gyro_X:");
+    Serial.print(gyroX);
+    Serial.print(",");
+
+
+    Serial.print("Filtered_X:");
+    Serial.println(filterAngleX);
+
   
 //  Serial.print("\t\tno filter Gyro X: ");
 //  Serial.println(gyroX, 4);

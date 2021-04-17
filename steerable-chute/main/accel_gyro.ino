@@ -39,7 +39,7 @@ void Initialize_Accel() {
     break;
   }
 
-  lsm6ds.setAccelDataRate(LSM6DS_RATE_12_5_HZ);
+  lsm6ds.setAccelDataRate(LSM6DS_RATE_6_66K_HZ);
   Serial.print("Accelerometer data rate set to: ");
   switch (lsm6ds.getAccelDataRate()) {
   case LSM6DS_RATE_SHUTDOWN:
@@ -102,7 +102,7 @@ void Initialize_Gyro() {
     break;
   }
 
-  lsm6ds.setGyroDataRate(LSM6DS_RATE_12_5_HZ);
+  lsm6ds.setGyroDataRate(LSM6DS_RATE_6_66K_HZ);
   Serial.print("Gyro data rate set to: ");
   switch (lsm6ds.getGyroDataRate()) {
   case LSM6DS_RATE_SHUTDOWN:
@@ -173,13 +173,15 @@ void init_Angle() {
     gyroX+=init_AccelX()/100;
     gyroY+=init_AccelY()/100;
 
-    delay(10);
+    delay(1);
   }
 }
+
 
 void timer() {
   prevTime = currTime;
   currTime = millis();
+  currTime -= startup;
   elapsedTime = (currTime - prevTime) / 1000;
 }
 
@@ -187,11 +189,13 @@ void GyroAccelAngle() {
   sensors_event_t accel, gyro, mag, temp;
   lsm6ds.getEvent(&accel, &gyro, &temp);
   
-  timer();
+  
   accelX = init_AccelX();
   accelY = init_AccelY();
 
   Serial.println(" ");
+
+  timer();
 
   gyroX = gyroX + (gyro.gyro.x*RAD_TO_DEG)*elapsedTime;
   gyroY = gyroY + (gyro.gyro.y*RAD_TO_DEG)*elapsedTime;
