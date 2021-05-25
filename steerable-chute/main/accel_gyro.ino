@@ -177,6 +177,21 @@ void init_Angle() {
   }
 }
 
+//////////not tested yet
+void init_Bias() {
+  for (int i = 0; i < 99; i++) {
+    GyroAccelAngle();
+    xTime = millis();
+    sumXtime += xTime;
+    sumYgyro += gyroX;
+    sumXtime2 = sumXtime2 * sumXtime2;
+    sumYgyro2 = sumYgyro2 * sumYgyro2;
+    sum_xTime_yGyro += xTime * gyroX;
+  }
+
+  initGyroBias = (100 * sum_xTime_yGyro - sumXtime * sumYgyro) / (100 * sumXtime2 - sumXtime * sumXtime);
+}
+
 
 void timer() {
   prevTime = currTime;
@@ -197,7 +212,7 @@ void GyroAccelAngle() {
 
   timer();
 
-  gyroX = gyroX + (gyro.gyro.x*RAD_TO_DEG)*elapsedTime;
+  gyroX = gyroX + (gyro.gyro.x*RAD_TO_DEG)*elapsedTime - initGyroBias; //initGyroBias !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   gyroY = gyroY + (gyro.gyro.y*RAD_TO_DEG)*elapsedTime;
   
   filterAngleX = Kalman(accelX, gyro.gyro.x, elapsedTime);

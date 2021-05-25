@@ -15,7 +15,6 @@ On nRF52832, it's on GPIO 11
 On nRF52840, it's on GPIO 10
  */
 
-
 //IMU Libraries & Declarations
 #include <Adafruit_LSM6DSOX.h>
 Adafruit_LSM6DSOX lsm6ds;
